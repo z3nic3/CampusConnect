@@ -47,6 +47,68 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
+         /* ================= BACK BUTTON ================= */
+
+.back-btn {
+
+
+display: inline-flex;
+align-items: center;
+gap: 5px;
+
+color: #d6ad52 !important;
+
+font-size: 14px;
+font-weight: 700;
+
+margin-left: 0;
+
+padding: 10px 14px !important;
+
+border: 1px solid rgba(214,173,82,.25);
+
+border-radius: 10px;
+
+background: transparent;
+
+cursor: pointer;
+
+transition: .3s ease;
+
+
+}
+
+.back-btn i {
+margin-right: 5px;
+}
+
+.back-btn:hover {
+
+
+color: #071426 !important;
+
+background: #d6ad52 !important;
+
+border-color: #d6ad52;
+
+box-shadow:
+    0 0 10px rgba(214,173,82,.35),
+    0 0 25px rgba(214,173,82,.15);
+
+transform: translateY(-2px);
+
+
+}
+
+.back-btn:hover i {
+
+
+color: #071426;
+
+text-shadow: none;
+
+
+}
           html{
              scroll-behavior:smooth;
           }
@@ -643,20 +705,46 @@
 
 <body>
 
-
-    <!-- ================= NAVBAR ================= -->
+<!-- ================= NAVBAR ================= -->
 
 <nav class="navbar-custom navbar navbar-expand-lg">
 
     <div class="container">
 
-        <!-- BRAND -->
-        <a href="studentDashboard.jsp" class="brand">
-            <i class="bi bi-mortarboard-fill"></i>
-            CampusConnect
-        </a>
 
-        <!-- MOBILE MENU -->
+        <!-- ================= LEFT SIDE ================= -->
+
+        <div class="d-flex align-items-center gap-3">
+
+
+            <!-- BACK BUTTON -->
+
+            <button type="button"
+                    class="back-btn"
+                    onclick="history.back()">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back
+
+            </button>
+
+
+            <!-- BRAND -->
+
+            <a href="studentDashboard.jsp" class="brand">
+
+                <i class="bi bi-mortarboard-fill"></i>
+
+                CampusConnect
+
+            </a>
+
+        </div>
+
+
+        <!-- ================= MOBILE MENU ================= -->
+
         <button class="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
@@ -669,71 +757,93 @@
 
         </button>
 
-        <!-- NAVIGATION -->
+
+        <!-- ================= NAVIGATION ================= -->
+
         <div class="collapse navbar-collapse" id="studentNav">
 
             <ul class="navbar-nav ms-auto align-items-lg-center">
 
+
                 <!-- DASHBOARD -->
+
                 <li class="nav-item">
+
                     <a class="nav-link custom-link active"
                        href="studentDashboard.jsp">
 
                         <i class="bi bi-grid"></i>
+
                         Dashboard
 
                     </a>
+
                 </li>
 
 
                 <!-- OPPORTUNITIES -->
+
                 <li class="nav-item">
+
                     <a class="nav-link custom-link"
                        href="studentDashboard.jsp#opportunities">
 
                         <i class="bi bi-briefcase"></i>
+
                         Opportunities
 
                     </a>
+
                 </li>
 
 
                 <!-- MY APPLICATIONS -->
+
                 <li class="nav-item">
+
                     <a class="nav-link custom-link"
                        href="studentDashboard.jsp#applications">
 
                         <i class="bi bi-file-earmark-text"></i>
+
                         My Applications
 
                     </a>
+
                 </li>
 
 
                 <!-- MY PROFILE -->
-<li class="nav-item">
 
-    <a class="nav-link custom-link"
-       href="<%= request.getContextPath() %>/studentProfile">
+                <li class="nav-item">
 
-        <i class="bi bi-person-circle"></i>
-        My Profile
+                    <a class="nav-link custom-link"
+                       href="<%= request.getContextPath() %>/studentProfile">
 
-    </a>
+                        <i class="bi bi-person-circle"></i>
 
-</li>
+                        My Profile
+
+                    </a>
+
+                </li>
 
 
                 <!-- LOGOUT -->
+
                 <li class="nav-item">
+
                     <a class="nav-link logout-link"
-                       href="<%=request.getContextPath()%>/logout">
+                       href="<%= request.getContextPath() %>/logout">
 
                         <i class="bi bi-box-arrow-right"></i>
+
                         Logout
 
                     </a>
+
                 </li>
+
 
             </ul>
 
@@ -842,7 +952,13 @@
 
                         <div class="feature-card w-100">
 
+                            <div class="company-name">
 
+                                    <i class="bi bi-building"></i>
+
+                                        <%= opp.getCompanyName() %>
+
+                            </div>
                             <!-- TYPE -->
 
                             <span class="opportunity-type">

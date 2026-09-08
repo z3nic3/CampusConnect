@@ -30,11 +30,43 @@ public class OpportunityDAO {
             return false;
         }
     }
+ // Update an existing opportunity
+    public boolean updateOpportunity(Opportunity opp) {
 
+        String sql = "UPDATE opportunity SET " +
+                     "title = ?, " +
+                     "type = ?, " +
+                     "skill_required = ?, " +
+                     "location = ?, " +
+                     "description = ? " +
+                     "WHERE opp_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, opp.getTitle());
+            ps.setString(2, opp.getType());
+            ps.setString(3, opp.getSkillRequired());
+            ps.setString(4, opp.getLocation());
+            ps.setString(5, opp.getDescription());
+            ps.setInt(6, opp.getOppId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     // Get all opportunities posted by a specific company
     public List<Opportunity> getOpportunitiesByCompany(int companyId) {
         List<Opportunity> list = new ArrayList<>();
-        String sql = "SELECT * FROM opportunity WHERE company_id = ? ORDER BY posted_date DESC";
+        String sql = "SELECT o.*, c.company_name\r\n"
+        		+ "FROM opportunity o\r\n"
+        		+ "JOIN company c\r\n"
+        		+ "ON o.company_id = c.company_id\r\n"
+        		+ "WHERE o.company_id = ?\r\n"
+        		+ "ORDER BY o.posted_date DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -53,7 +85,11 @@ public class OpportunityDAO {
     // Get all opportunities (for student browsing later)
     public List<Opportunity> getAllOpportunities() {
         List<Opportunity> list = new ArrayList<>();
-        String sql = "SELECT * FROM opportunity ORDER BY posted_date DESC";
+        String sql =
+        	    "SELECT o.*, c.company_name " +
+        	    "FROM opportunity o " +
+        	    "JOIN company c ON o.company_id = c.company_id " +
+        	    "ORDER BY o.posted_date DESC";
         try (Connection conn = DBConnection.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery(sql)) {
@@ -79,6 +115,9 @@ public class OpportunityDAO {
         opp.setLocation(rs.getString("location"));
         opp.setDescription(rs.getString("description"));
         opp.setPostedDate(rs.getDate("posted_date"));
+        opp.setCompanyName(
+        	    rs.getString("company_name")
+        	);
         return opp;
     }
 }

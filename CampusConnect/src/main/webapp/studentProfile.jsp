@@ -111,7 +111,80 @@
 
 
     <style>
+    /* ================= BACK BUTTON ================= */
 
+.back-btn {
+
+
+display: inline-flex;
+align-items: center;
+gap: 5px;
+
+color: #d6ad52 !important;
+
+font-size: 14px;
+font-weight: 700;
+
+margin-left: 0;
+
+padding: 10px 14px !important;
+
+border: 1px solid rgba(214,173,82,.25);
+
+border-radius: 10px;
+
+background: transparent;
+
+cursor: pointer;
+
+transition: .3s ease;
+
+
+}
+
+.back-btn i {
+margin-right: 5px;
+}
+
+.back-btn:hover {
+
+
+color: #071426 !important;
+
+background: #d6ad52 !important;
+
+border-color: #d6ad52;
+
+box-shadow:
+    0 0 10px rgba(214,173,82,.35),
+    0 0 25px rgba(214,173,82,.15);
+
+transform: translateY(-2px);
+
+
+}
+
+.back-btn:hover i {
+
+
+color: #071426;
+
+text-shadow: none;
+
+
+}
+.apply-message {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 15px 20px;
+    border-radius: 10px;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffe69c;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
 /* =========================================================
    GLOBAL
 ========================================================= */
@@ -959,6 +1032,20 @@ footer i {
 
 <body>
 
+<%
+    String applyMessage = (String) session.getAttribute("applyMessage");
+
+    if (applyMessage != null) {
+%>
+
+<div class="apply-message">
+    ⚠️ <%= applyMessage %>
+</div>
+
+<%
+        session.removeAttribute("applyMessage");
+    }
+%>
 
 <!-- =========================================================
      NAVBAR
@@ -966,114 +1053,123 @@ footer i {
 
 <nav class="navbar navbar-expand-lg navbar-custom">
 
-    <div class="container">
+<div class="container">
+
+    <!-- LEFT SIDE: BACK + BRAND -->
+    <div class="d-flex align-items-center gap-3">
+
+        <button type="button"
+                class="back-btn"
+                onclick="history.back()">
+
+            <i class="bi bi-arrow-left"></i>
+            Back
+
+        </button>
 
         <a class="brand"
            href="<%= request.getContextPath() %>/studentDashboard.jsp">
 
             <i class="bi bi-mortarboard-fill"></i>
-
             CampusConnect
 
         </a>
 
-
-        <!-- MOBILE BUTTON -->
-
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#studentNavbar">
-
-            <i class="bi bi-list"></i>
-
-        </button>
+    </div>
 
 
-        <!-- NAVIGATION -->
+    <!-- MOBILE BUTTON -->
+    <button class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#studentNavbar"
+            aria-controls="studentNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
 
-        <div class="collapse navbar-collapse"
-             id="studentNavbar">
+        <i class="bi bi-list"></i>
 
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-
-
-                <li class="nav-item">
-
-                    <a class="nav-link custom-link"
-                       href="<%= request.getContextPath() %>/studentDashboard.jsp">
-
-                        <i class="bi bi-house"></i>
-
-                        Dashboard
-
-                    </a>
-
-                </li>
+    </button>
 
 
-                <li class="nav-item">
+    <!-- NAVIGATION -->
+    <div class="collapse navbar-collapse"
+         id="studentNavbar">
 
-                    <a class="nav-link custom-link"
-                       href="<%= request.getContextPath() %>/studentDashboard.jsp#opportunities">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
 
-                        <i class="bi bi-briefcase"></i>
+            <li class="nav-item">
 
-                        Opportunities
+                <a class="nav-link custom-link"
+                   href="<%= request.getContextPath() %>/studentDashboard.jsp">
 
-                    </a>
+                    <i class="bi bi-house"></i>
+                    Dashboard
 
-                </li>
+                </a>
 
-
-                <li class="nav-item">
-
-                    <a class="nav-link custom-link"
-                       href="<%= request.getContextPath() %>/studentDashboard.jsp#applications">
-
-                        <i class="bi bi-file-earmark-text"></i>
-
-                        My Applications
-
-                    </a>
-
-                </li>
+            </li>
 
 
-                <li class="nav-item">
+            <li class="nav-item">
 
-                    <a class="nav-link custom-link active"
-                       href="<%= request.getContextPath() %>/studentProfile">
+                <a class="nav-link custom-link"
+                   href="<%= request.getContextPath() %>/studentDashboard.jsp#opportunities">
 
-                        <i class="bi bi-person-circle"></i>
+                    <i class="bi bi-briefcase"></i>
+                    Opportunities
 
-                        Profile
+                </a>
 
-                    </a>
-
-                </li>
+            </li>
 
 
-                <li class="nav-item">
+            <li class="nav-item">
 
-                    <a class="nav-link logout-link"
-                       href="<%= request.getContextPath() %>/logout">
+                <a class="nav-link custom-link"
+                   href="<%= request.getContextPath() %>/studentDashboard.jsp#applications">
 
-                        <i class="bi bi-box-arrow-right"></i>
+                    <i class="bi bi-file-earmark-text"></i>
+                    My Applications
 
-                        Logout
+                </a>
 
-                    </a>
+            </li>
 
-                </li>
 
-            </ul>
+            <li class="nav-item">
 
-        </div>
+                <a class="nav-link custom-link active"
+                   href="<%= request.getContextPath() %>/studentProfile">
+
+                    <i class="bi bi-person-circle"></i>
+                    Profile
+
+                </a>
+
+            </li>
+
+
+            <li class="nav-item">
+
+                <a class="nav-link logout-link"
+                   href="<%= request.getContextPath() %>/logout">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </a>
+
+            </li>
+
+        </ul>
 
     </div>
 
+</div>
+
 </nav>
+
 
 
 

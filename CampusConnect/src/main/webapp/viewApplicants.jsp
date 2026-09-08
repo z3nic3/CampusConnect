@@ -41,7 +41,68 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
+        /* ================= BACK BUTTON ================= */
 
+.back-btn {
+
+
+display: inline-flex;
+align-items: center;
+gap: 5px;
+
+color: #d6ad52 !important;
+
+font-size: 14px;
+font-weight: 700;
+
+margin-left: 0;
+
+padding: 10px 14px !important;
+
+border: 1px solid rgba(214,173,82,.25);
+
+border-radius: 10px;
+
+background: transparent;
+
+cursor: pointer;
+
+transition: .3s ease;
+
+
+}
+
+.back-btn i {
+margin-right: 5px;
+}
+
+.back-btn:hover {
+
+
+color: #071426 !important;
+
+background: #d6ad52 !important;
+
+border-color: #d6ad52;
+
+box-shadow:
+    0 0 10px rgba(214,173,82,.35),
+    0 0 25px rgba(214,173,82,.15);
+
+transform: translateY(-2px);
+
+
+}
+
+.back-btn:hover i {
+
+
+color: #071426;
+
+text-shadow: none;
+
+
+}
         * {
             box-sizing: border-box;
         }
@@ -572,130 +633,148 @@
 <body>
 
 
-<!-- ================= NAVBAR ================= -->
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
 
-<nav class="navbar-custom navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg navbar-custom">
 
-    <div class="container">
+<div class="container">
 
-        <!-- BRAND -->
+    <!-- BACK BUTTON + BRAND -->
+    <div class="d-flex align-items-center gap-3">
 
-        <a href="<%= request.getContextPath() %>/companyDashboard.jsp"
-           class="brand">
+        <button type="button"
+                class="back-btn"
+                onclick="history.back()">
+
+            <i class="bi bi-arrow-left"></i>
+            Back
+
+        </button>
+
+        <a class="brand"
+           href="<%= request.getContextPath() %>/companyDashboard">
 
             <i class="bi bi-mortarboard-fill"></i>
-
             CampusConnect
 
         </a>
 
-
-        <!-- MOBILE MENU -->
-
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#companyNav"
-                aria-controls="companyNav"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
-
-            <i class="bi bi-list"></i>
-
-        </button>
+    </div>
 
 
-        <!-- NAVIGATION -->
+    <!-- MOBILE BUTTON -->
+    <button class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#companyNav"
+            aria-controls="companyNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
 
-        <div class="collapse navbar-collapse"
-             id="companyNav">
+        <i class="bi bi-list"></i>
 
-            <ul class="navbar-nav ms-auto align-items-lg-center">
-
-
-                <!-- DASHBOARD -->
-
-                <li class="nav-item">
-
-                    <a class="nav-link custom-link"
-                       href="<%= request.getContextPath() %>/companyDashboard.jsp">
-
-                        <i class="bi bi-grid"></i>
-
-                        Dashboard
-
-                    </a>
-
-                </li>
+    </button>
 
 
-                <!-- POST OPPORTUNITY -->
+    <!-- NAVIGATION -->
+    <div class="collapse navbar-collapse"
+         id="companyNav">
 
-                <li class="nav-item">
-
-                    <a class="nav-link custom-link"
-                       href="<%= request.getContextPath() %>/postJob.jsp">
-
-                        <i class="bi bi-plus-circle"></i>
-
-                        Post Opportunity
-
-                    </a>
-
-                </li>
-
-                <!-- APPLICANTS - ACTIVE -->
-
-                <li class="nav-item">
-
-                    <a class="nav-link custom-link active"
-                       href="<%= request.getContextPath() %>/companyapplications">
-
-                        <i class="bi bi-people"></i>
-
-                        Applicants
-
-                    </a>
-
-                </li>
+        <ul class="navbar-nav ms-auto align-items-lg-center">
 
 
-                <!-- COMPANY NAME -->
+            <!-- DASHBOARD -->
+            <li class="nav-item">
 
-                <li class="nav-item">
+                <a class="nav-link custom-link active"
+                   href="<%= request.getContextPath() %>/companyDashboard">
 
-                    <span class="nav-link custom-link company-name">
+                    <i class="bi bi-grid"></i>
+                    Dashboard
 
-                        <i class="bi bi-building"></i>
+                </a>
 
-                        <%= user.getName() %>
-
-                    </span>
-
-                </li>
-
-
-                <!-- LOGOUT -->
-
-                <li class="nav-item">
-
-                    <a class="nav-link logout-link"
-                       href="<%= request.getContextPath() %>/logout">
-
-                        <i class="bi bi-box-arrow-right"></i>
-
-                        Logout
-
-                    </a>
-
-                </li>
+            </li>
 
 
-            </ul>
+            <!-- POST OPPORTUNITY -->
+            <li class="nav-item">
 
-        </div>
+                <a class="nav-link custom-link"
+                   href="<%= request.getContextPath() %>/postJob.jsp">
+
+                    <i class="bi bi-plus-circle"></i>
+                    Post Opportunity
+
+                </a>
+
+            </li>
+
+
+            <!-- MY POSTINGS -->
+            <li class="nav-item">
+
+                <a class="nav-link custom-link"
+                   href="<%= request.getContextPath() %>/companyDashboard#postings">
+
+                    <i class="bi bi-briefcase"></i>
+                    My Postings
+
+                </a>
+
+            </li>
+
+
+            <!-- APPLICANTS -->
+            <li class="nav-item">
+
+                <a class="nav-link custom-link"
+                   href="<%= request.getContextPath() %>/companyapplications">
+
+                    <i class="bi bi-people"></i>
+                    Applicants
+
+                </a>
+
+            </li>
+
+
+            <!-- COMPANY NAME / PROFILE -->
+            <li class="nav-item">
+
+                <a class="nav-link custom-link company-name"
+                   href="<%= request.getContextPath() %>/companyProfile">
+
+                    <i class="bi bi-building"></i>
+                    <%= user.getName() %>
+
+                </a>
+
+            </li>
+
+
+            <!-- LOGOUT -->
+            <li class="nav-item">
+
+                <a class="nav-link logout-link"
+                   href="<%= request.getContextPath() %>/logout">
+
+                    <i class="bi bi-box-arrow-right"></i>
+                    Logout
+
+                </a>
+
+            </li>
+
+
+        </ul>
 
     </div>
+
+</div>
+
 
 </nav>
 
@@ -793,7 +872,47 @@
                 <%= app.getAppliedDate() %>
             </p>
 
+            <!-- STUDENT PROFILE -->
 
+<p>
+    <strong>Skills:</strong>
+    <%= app.getSkills() != null && !app.getSkills().trim().isEmpty()
+            ? app.getSkills()
+            : "Not provided" %>
+</p>
+
+<p>
+    <strong>Education:</strong>
+    <%= app.getEducation() != null && !app.getEducation().trim().isEmpty()
+            ? app.getEducation()
+            : "Not provided" %>
+</p>
+
+<!-- RESUME -->
+
+<p>
+    <strong>Resume:</strong>
+
+    <% if (app.getResumePath() != null
+            && !app.getResumePath().trim().isEmpty()) { %>
+
+        <a href="<%= request.getContextPath() %>/viewResume?appId=<%= app.getAppId() %>"
+           target="_blank"
+           class="btn btn-sm btn-outline-warning ms-2">
+
+            <i class="bi bi-file-earmark-pdf"></i>
+            View Resume
+
+        </a>
+
+    <% } else { %>
+
+        <span class="text-secondary">
+            Resume not uploaded
+        </span>
+
+    <% } %>
+</p>
             <!-- STATUS -->
 
             <div class="mt-3">

@@ -92,6 +92,203 @@ public class UserDAO {
         return null;
     }
     
-    
+    public java.util.List<User> getAllUsers() {
+
+        java.util.List<User> users = new java.util.ArrayList<>();
+
+        String sql = "SELECT * FROM user ORDER BY user_id DESC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                User user = new User();
+
+                user.setUserId(rs.getInt("user_id"));
+                user.setName(rs.getString("name"));
+                user.setEmail(rs.getString("email"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+
+                users.add(user);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+    public boolean deleteUser(int userId) {
+
+        Connection conn = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // -------------------------------------------------
+            // 1. Get the user's role
+            // -------------------------------------------------
+            String role = null;
+
+            String getRoleSQL = "SELECT role FROM user WHERE user_id = ?";
+
+            try (PreparedStatement ps = conn.prepareStatement(getRoleSQL)) {
+
+                ps.setInt(1, userId);
+
+                try (ResultSet rs = ps.executeQuery()) {
+
+                    if (rs.next()) {
+                        role = rs.getString("role");
+                    } else {
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            // -------------------------------------------------
+            // 2. Never allow ADMIN to be deleted
+            // -------------------------------------------------
+            if ("ADMIN".equalsIgnoreCase(role)) {
+                conn.rollback();
+                return false;
+            }
+
+            // -------------------------------------------------
+            // 3. If user is a STUDENT
+            // -------------------------------------------------
+            if ("STUDENT".equalsIgnoreCase(role)) {
+
+                // Delete student's applications
+                String deleteApplicationsSQL =
+                        "DELETE FROM application WHERE student_id = ?";
+
+                try (PreparedStatement ps =
+                             conn.prepareStatement(deleteApplicationsSQL)) {
+
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+
+                // Delete student's profile
+                String deleteProfileSQL =
+                        "DELETE FROM student_profile WHERE user_id = ?";
+
+                try (PreparedStatement ps =
+                             conn.prepareStatement(deleteProfileSQL)) {
+
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+            }
+
+            // -------------------------------------------------
+            // 4. If user is a COMPANY
+            // -------------------------------------------------
+            else if ("COMPANY".equalsIgnoreCase(role)) {
+
+                // First delete applications belonging to
+                // opportunities posted by this company
+                String deleteApplicationsSQL =
+                        "DELETE FROM application " +
+                        "WHERE opp_id IN (" +
+                        "SELECT opp_id FROM opportunity " +
+                        "WHERE company_id IN (" +
+                        "SELECT company_id FROM company WHERE user_id = ?" +
+                        ")" +
+                        ")";
+
+                try (PreparedStatement ps =
+                             conn.prepareStatement(deleteApplicationsSQL)) {
+
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+
+                // Delete company's opportunities
+                String deleteOpportunitiesSQL =
+                        "DELETE FROM opportunity " +
+                        "WHERE company_id IN (" +
+                        "SELECT company_id FROM company WHERE user_id = ?)";
+
+                try (PreparedStatement ps =
+                             conn.prepareStatement(deleteOpportunitiesSQL)) {
+
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+
+                // Delete company profile
+                String deleteCompanySQL =
+                        "DELETE FROM company WHERE user_id = ?";
+
+                try (PreparedStatement ps =
+                             conn.prepareStatement(deleteCompanySQL)) {
+
+                    ps.setInt(1, userId);
+                    ps.executeUpdate();
+                }
+            }
+
+            // -------------------------------------------------
+            // 5. Finally delete the user
+            // -------------------------------------------------
+            String deleteUserSQL =
+                    "DELETE FROM user WHERE user_id = ? AND role <> 'ADMIN'";
+
+            int rowsDeleted;
+
+            try (PreparedStatement ps =
+                         conn.prepareStatement(deleteUserSQL)) {
+
+                ps.setInt(1, userId);
+                rowsDeleted = ps.executeUpdate();
+            }
+
+            // -------------------------------------------------
+            // 6. Commit if successful
+            // -------------------------------------------------
+            if (rowsDeleted > 0) {
+                conn.commit();
+                return true;
+            } else {
+                conn.rollback();
+                return false;
+            }
+
+        } catch (SQLException e) {
+
+            // If anything fails, undo ALL changes
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackException) {
+                    rollbackException.printStackTrace();
+                }
+            }
+
+            e.printStackTrace();
+            return false;
+
+        } finally {
+
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+
     
 }

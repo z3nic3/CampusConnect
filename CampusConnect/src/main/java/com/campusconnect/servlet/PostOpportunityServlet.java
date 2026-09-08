@@ -1,6 +1,7 @@
 package com.campusconnect.servlet;
 
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,20 +24,137 @@ public class PostOpportunityServlet extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        // Security check: only logged-in COMPANY users can post
+        // =====================================================
+        // 1. SECURITY CHECK
+        // =====================================================
+
         if (user == null || !"COMPANY".equals(user.getRole())) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login.jsp");
             return;
         }
+
+        // =====================================================
+        // 2. GET COMPANY PROFILE FROM DATABASE
+        // =====================================================
 
         CompanyDAO companyDAO = new CompanyDAO();
-        Company company = companyDAO.getCompanyByUserId(user.getUserId());
 
+        Company company =
+                companyDAO.getCompanyByUserId(user.getUserId());
+
+        // No company profile exists
         if (company == null) {
-            request.setAttribute("error", "Company profile not found.");
-            request.getRequestDispatcher("postJob.jsp").forward(request, response);
+
+            session.setAttribute(
+                "profileMessage",
+                "Please complete your profile to publish an opportunity."
+            );
+
+            response.sendRedirect(
+                request.getContextPath() + "/companyProfile"
+            );
+
             return;
         }
+
+        if (company.getCompanyName() == null
+                || company.getCompanyName().trim().isEmpty()
+                || company.getIndustry() == null
+                || company.getIndustry().trim().isEmpty()
+                || company.getDescription() == null
+                || company.getDescription().trim().isEmpty()
+                || company.getLocation() == null
+                || company.getLocation().trim().isEmpty()
+                || company.getCompanyEmail() == null
+                || company.getCompanyEmail().trim().isEmpty()
+                || company.getContactNumber() == null
+                || company.getContactNumber().trim().isEmpty()
+                || company.getCompanySize() == null
+                || company.getCompanySize().trim().isEmpty()) {
+
+            session.setAttribute(
+                "profileMessage",
+                "Please complete your profile to publish an opportunity."
+            );
+
+            response.sendRedirect(
+                request.getContextPath() + "/companyProfile"
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // 3. CHECK WHETHER COMPANY PROFILE IS COMPLETE
+        // =====================================================
+
+        boolean profileComplete = true;
+
+        // Company name
+        if (company.getCompanyName() == null ||
+            company.getCompanyName().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // Industry
+        if (company.getIndustry() == null ||
+            company.getIndustry().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // Description
+        if (company.getDescription() == null ||
+            company.getDescription().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // Location
+        if (company.getLocation() == null ||
+            company.getLocation().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // Company email
+        if (company.getCompanyEmail() == null ||
+            company.getCompanyEmail().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // Contact number
+        if (company.getContactNumber() == null ||
+            company.getContactNumber().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // Company size
+        if (company.getCompanySize() == null ||
+            company.getCompanySize().trim().isEmpty()) {
+
+            profileComplete = false;
+        }
+
+        // =====================================================
+        // 4. BLOCK POSTING IF PROFILE IS INCOMPLETE
+        // =====================================================
+
+        if (!profileComplete) {
+
+            response.sendRedirect(
+                request.getContextPath() + "/companyProfile"
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // 5. GET OPPORTUNITY FORM DATA
+        // =====================================================
 
         String title = request.getParameter("title");
         String type = request.getParameter("type");
@@ -44,7 +162,12 @@ public class PostOpportunityServlet extends HttpServlet {
         String location = request.getParameter("location");
         String description = request.getParameter("description");
 
+        // =====================================================
+        // 6. CREATE OPPORTUNITY
+        // =====================================================
+
         Opportunity opp = new Opportunity();
+
         opp.setCompanyId(company.getCompanyId());
         opp.setTitle(title);
         opp.setType(type);
@@ -53,22 +176,36 @@ public class PostOpportunityServlet extends HttpServlet {
         opp.setDescription(description);
 
         OpportunityDAO oppDAO = new OpportunityDAO();
+
         boolean success = oppDAO.addOpportunity(opp);
+
+        // =====================================================
+        // 7. RESULT
+        // =====================================================
 
         if (success) {
 
-            response.sendRedirect(
-                request.getContextPath() + "/companyDashboard"
-            );
+        	session.setAttribute(
+        		    "profileMessage",
+        		    "Please complete your profile to publish an opportunity."
+        		);
 
-            return;
+        		response.sendRedirect(
+        		    request.getContextPath() + "/companyProfile"
+        		);
+
+        		return;
 
         } else {
 
-            request.setAttribute("error", "Failed to post opportunity.");
+            request.setAttribute(
+                "error",
+                "Failed to post opportunity."
+            );
 
-            request.getRequestDispatcher("/postJob.jsp")
-                   .forward(request, response);
+            request.getRequestDispatcher(
+                "/postJob.jsp"
+            ).forward(request, response);
         }
     }
 }

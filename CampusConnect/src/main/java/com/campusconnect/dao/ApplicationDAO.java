@@ -17,8 +17,9 @@ public class ApplicationDAO {
     // --------------------------------------------------
     public boolean alreadyApplied(int studentId, int oppId) {
 
-        String sql = "SELECT app_id FROM application "
-                   + "WHERE student_id = ? AND opp_id = ?";
+        String sql =
+                "SELECT app_id FROM application " +
+                "WHERE student_id = ? AND opp_id = ?";
 
         try (
             Connection conn = DBConnection.getConnection();
@@ -45,9 +46,10 @@ public class ApplicationDAO {
     // --------------------------------------------------
     public boolean apply(int studentId, int oppId) {
 
-        String sql = "INSERT INTO application "
-                   + "(student_id, opp_id, status, applied_date) "
-                   + "VALUES (?, ?, 'PENDING', CURDATE())";
+        String sql =
+                "INSERT INTO application " +
+                "(student_id, opp_id, status, applied_date) " +
+                "VALUES (?, ?, 'PENDING', CURDATE())";
 
         try (
             Connection conn = DBConnection.getConnection();
@@ -71,6 +73,7 @@ public class ApplicationDAO {
 
     // --------------------------------------------------
     // GET ALL APPLICATIONS OF A COMPANY
+    // INCLUDING STUDENT PROFILE DETAILS
     // --------------------------------------------------
     public List<Application> getApplicationsByCompany(int userId) {
 
@@ -82,7 +85,10 @@ public class ApplicationDAO {
               + "       a.opp_id, "
               + "       a.status, "
               + "       a.applied_date, "
-              + "       u.name AS student_name "
+              + "       u.name AS student_name, "
+              + "       sp.skills, "
+              + "       sp.education, "
+              + "       sp.resume_path "
               + "FROM application a "
               + "JOIN opportunity o "
               + "ON a.opp_id = o.opp_id "
@@ -90,6 +96,8 @@ public class ApplicationDAO {
               + "ON o.company_id = c.company_id "
               + "JOIN user u "
               + "ON a.student_id = u.user_id "
+              + "LEFT JOIN student_profile sp "
+              + "ON a.student_id = sp.user_id "
               + "WHERE c.user_id = ? "
               + "ORDER BY a.applied_date DESC";
 
@@ -99,8 +107,9 @@ public class ApplicationDAO {
         ) {
 
             ps.setInt(1, userId);
-            System.out.println("SQL= "+ sql);
-            System.out.println("USER ID="+ userId);
+
+            System.out.println("SQL = " + sql);
+            System.out.println("USER ID = " + userId);
 
             ResultSet rs = ps.executeQuery();
 
@@ -108,6 +117,7 @@ public class ApplicationDAO {
 
                 Application application = new Application();
 
+                // Application details
                 application.setAppId(
                     rs.getInt("app_id")
                 );
@@ -127,31 +137,55 @@ public class ApplicationDAO {
                 application.setAppliedDate(
                     rs.getDate("applied_date")
                 );
+
+                // Student name
                 application.setStudentName(
-                		rs.getString("student_name")
+                    rs.getString("student_name")
                 );
+
+                // Student profile
+                application.setSkills(
+                    rs.getString("skills")
+                );
+
+                application.setEducation(
+                    rs.getString("education")
+                );
+
+                application.setResumePath(
+                    rs.getString("resume_path")
+                );
+
                 applications.add(application);
             }
-           
-        
-        }catch (SQLException e) {
+
+        } catch (SQLException e) {
 
             e.printStackTrace();
         }
 
         return applications;
     }
-    //get applications of student
+
+
+    // --------------------------------------------------
+    // GET APPLICATIONS OF A STUDENT
+    // --------------------------------------------------
     public List<Application> getApplicationsByStudent(int studentId) {
 
         List<Application> applications = new ArrayList<>();
 
         String sql =
-                "SELECT a.app_id, a.student_id, a.opp_id, "
-              + "a.status, a.applied_date, "
-              + "o.type, o.location "
+                "SELECT a.app_id, "
+              + "       a.student_id, "
+              + "       a.opp_id, "
+              + "       a.status, "
+              + "       a.applied_date, "
+              + "       o.type, "
+              + "       o.location "
               + "FROM application a "
-              + "JOIN opportunity o ON a.opp_id = o.opp_id "
+              + "JOIN opportunity o "
+              + "ON a.opp_id = o.opp_id "
               + "WHERE a.student_id = ? "
               + "ORDER BY a.applied_date DESC";
 
@@ -168,21 +202,42 @@ public class ApplicationDAO {
 
                 Application app = new Application();
 
-                app.setAppId(rs.getInt("app_id"));
-                app.setStudentId(rs.getInt("student_id"));
-                app.setOppId(rs.getInt("opp_id"));
-                app.setStatus(rs.getString("status"));
-                app.setAppliedDate(rs.getDate("applied_date"));
+                app.setAppId(
+                    rs.getInt("app_id")
+                );
+
+                app.setStudentId(
+                    rs.getInt("student_id")
+                );
+
+                app.setOppId(
+                    rs.getInt("opp_id")
+                );
+
+                app.setStatus(
+                    rs.getString("status")
+                );
+
+                app.setAppliedDate(
+                    rs.getDate("applied_date")
+                );
 
                 applications.add(app);
             }
 
         } catch (SQLException e) {
+
             e.printStackTrace();
         }
 
         return applications;
     }
+
+
+    // --------------------------------------------------
+    // UPDATE APPLICATION STATUS
+    // ACCEPTED / REJECTED
+    // --------------------------------------------------
     public boolean updateApplicationStatus(int appId, String status) {
 
         String sql =
@@ -208,4 +263,181 @@ public class ApplicationDAO {
             return false;
         }
     }
+    public String getResumePathForCompany(int appId, int companyUserId) {
+
+        String sql =
+                "SELECT sp.resume_path "
+              + "FROM application a "
+              + "JOIN opportunity o "
+              + "ON a.opp_id = o.opp_id "
+              + "JOIN company c "
+              + "ON o.company_id = c.company_id "
+              + "JOIN student_profile sp "
+              + "ON a.student_id = sp.user_id "
+              + "WHERE a.app_id = ? "
+              + "AND c.user_id = ?";
+
+        try (
+            Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+
+            ps.setInt(1, appId);
+            ps.setInt(2, companyUserId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("resume_path");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+ // =========================================================
+ // GET ALL APPLICATIONS FOR ADMIN
+ // =========================================================
+
+ public List<Application> getAllApplications() {
+
+     List<Application> applications = new ArrayList<>();
+
+     String sql =
+             "SELECT a.app_id, "
+           + "       a.student_id, "
+           + "       a.opp_id, "
+           + "       a.status, "
+           + "       a.applied_date, "
+           + "       u.name AS student_name, "
+           + "       o.title AS opportunity_title, "
+           + "       c.company_name "
+           + "FROM application a "
+           + "JOIN user u "
+           + "ON a.student_id = u.user_id "
+           + "JOIN opportunity o "
+           + "ON a.opp_id = o.opp_id "
+           + "JOIN company c "
+           + "ON o.company_id = c.company_id "
+           + "ORDER BY a.applied_date DESC";
+
+     try (Connection conn = DBConnection.getConnection();
+          PreparedStatement ps = conn.prepareStatement(sql);
+          ResultSet rs = ps.executeQuery()) {
+
+         while (rs.next()) {
+
+             Application application = new Application();
+
+             application.setAppId(rs.getInt("app_id"));
+             application.setStudentId(rs.getInt("student_id"));
+             application.setOppId(rs.getInt("opp_id"));
+             application.setStatus(rs.getString("status"));
+             application.setAppliedDate(rs.getDate("applied_date"));
+
+             application.setStudentName(
+                     rs.getString("student_name")
+             );
+
+             application.setOpportunityTitle(
+                     rs.getString("opportunity_title")
+             );
+
+             application.setCompanyName(
+                     rs.getString("company_name")
+             );
+
+             applications.add(application);
+         }
+
+     } catch (SQLException e) {
+         e.printStackTrace();
+     }
+
+     return applications;
+ }
+//=========================================================
+//GET APPLICATION DETAILS BY APPLICATION ID
+//=========================================================
+public Application getApplicationById(int appId) {
+
+  String sql =
+          "SELECT a.app_id, "
+        + "       a.student_id, "
+        + "       a.opp_id, "
+        + "       a.status, "
+        + "       a.applied_date, "
+        + "       u.name AS student_name, "
+        + "       sp.skills, "
+        + "       sp.education, "
+        + "       sp.resume_path, "
+        + "       o.title AS opportunity_title, "
+        + "       c.company_name "
+        + "FROM application a "
+        + "JOIN user u "
+        + "ON a.student_id = u.user_id "
+        + "JOIN opportunity o "
+        + "ON a.opp_id = o.opp_id "
+        + "JOIN company c "
+        + "ON o.company_id = c.company_id "
+        + "LEFT JOIN student_profile sp "
+        + "ON a.student_id = sp.user_id "
+        + "WHERE a.app_id = ?";
+
+  try (
+      Connection conn = DBConnection.getConnection();
+      PreparedStatement ps = conn.prepareStatement(sql)
+  ) {
+
+      ps.setInt(1, appId);
+
+      ResultSet rs = ps.executeQuery();
+
+      if (rs.next()) {
+
+          Application application = new Application();
+
+          application.setAppId(rs.getInt("app_id"));
+          application.setStudentId(rs.getInt("student_id"));
+          application.setOppId(rs.getInt("opp_id"));
+          application.setStatus(rs.getString("status"));
+          application.setAppliedDate(rs.getDate("applied_date"));
+
+          application.setStudentName(
+                  rs.getString("student_name")
+          );
+
+          application.setSkills(
+                  rs.getString("skills")
+          );
+
+          application.setEducation(
+                  rs.getString("education")
+          );
+
+          application.setResumePath(
+                  rs.getString("resume_path")
+          );
+
+          application.setOpportunityTitle(
+                  rs.getString("opportunity_title")
+          );
+
+          application.setCompanyName(
+                  rs.getString("company_name")
+          );
+
+          return application;
+      }
+
+  } catch (SQLException e) {
+      e.printStackTrace();
+  }
+
+  return null;
+}
+
 }

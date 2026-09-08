@@ -54,7 +54,68 @@
 
 
 <style>
+/* ================= BACK BUTTON ================= */
 
+.back-btn {
+
+
+display: inline-flex;
+align-items: center;
+gap: 5px;
+
+color: #d6ad52 !important;
+
+font-size: 14px;
+font-weight: 700;
+
+margin-left: 0;
+
+padding: 10px 14px !important;
+
+border: 1px solid rgba(214,173,82,.25);
+
+border-radius: 10px;
+
+background: transparent;
+
+cursor: pointer;
+
+transition: .3s ease;
+
+
+}
+
+.back-btn i {
+margin-right: 5px;
+}
+
+.back-btn:hover {
+
+
+color: #071426 !important;
+
+background: #d6ad52 !important;
+
+border-color: #d6ad52;
+
+box-shadow:
+    0 0 10px rgba(214,173,82,.35),
+    0 0 25px rgba(214,173,82,.15);
+
+transform: translateY(-2px);
+
+
+}
+
+.back-btn:hover i {
+
+
+color: #071426;
+
+text-shadow: none;
+
+
+}
 /* =========================================================
    GLOBAL
 ========================================================= */
@@ -860,7 +921,12 @@ footer i {
 
 <body>
 
-
+<div class="back-container">
+    <button type="button" class="back-btn" onclick="history.back()">
+        <i class="bi bi-arrow-left"></i>
+        Back
+    </button>
+</div>
 <!-- =====================================================
      NAVBAR
 ====================================================== -->

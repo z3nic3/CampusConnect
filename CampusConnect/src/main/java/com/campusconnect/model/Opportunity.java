@@ -11,6 +11,7 @@ public class Opportunity {
     private String location;
     private String description;
     private Date postedDate;
+    private String companyName;
 
     public Opportunity() {}
 
@@ -49,4 +50,12 @@ public class Opportunity {
 
     public Date getPostedDate() { return postedDate; }
     public void setPostedDate(Date postedDate) { this.postedDate = postedDate; }
+    
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
 }
